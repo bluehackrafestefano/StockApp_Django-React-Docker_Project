@@ -13,7 +13,7 @@ const AuthContextProvider = (props)=>{
 
   const createUser = async (userInfo,navigate)=>{
     try {
-      const res = await axios.post(`${url}account/register/`,userInfo)
+      const res = await axios.post(`${url}users/register/`,userInfo)
       console.log(res)
       if(res.data.token){
         console.log(res)
@@ -34,7 +34,7 @@ const AuthContextProvider = (props)=>{
 
   const signIn = async (userInfo,navigate)=>{
     try {
-      const res = await axios.post(`${url}account/auth/login/`,userInfo)
+      const res = await axios.post(`${url}users/auth/login/`,userInfo)
       console.log(res)
       if(res.data.key){
         console.log(res)
@@ -59,7 +59,7 @@ const AuthContextProvider = (props)=>{
     try {
       var config = {
         method: 'post',
-        url: `${url}account/auth/logout/`,
+        url: `${url}users/auth/logout/`,
         headers: { 
           'Authorization': `Token ${myKey}`, 
         }

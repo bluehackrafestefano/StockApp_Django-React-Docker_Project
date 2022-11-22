@@ -363,13 +363,15 @@ Compose works in all environments: production, staging, development, testing, as
 
 ### Pereperation
 
-- Remove CMD line from Django Dockerfile. We will handle that command with docker-compose.yml using gunicorn. Gunicorn ‘Green Unicorn’ is a Python WSGI HTTP Server for UNIX. Add gunicorn to requirements.txt under api/.
+- Remove CMD line from Django Dockerfile. We will handle that command with docker-compose.yml using gunicorn. Gunicorn ‘Green Unicorn’ is a Python WSGI HTTP Server for UNIX. Add [gunicorn](https://pypi.org/project/gunicorn/) (gunicorn==20.1.0) to requirements.txt under api/.
 
-- Also add psycopg2-binary to requirements.txt under api/.
+- Also add [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) (psycopg2-binary==2.9.5) to requirements.txt under api/.
 
 - Since our frontend and backend speaks different languages, we need to add Cross-Origin Resource Sharing (CORS) to our code. Make necessary [CORS settings](https://pypi.org/project/django-cors-headers/) on backend.
 
 - Open client/src/context/AuthContext.js, and change const url to "http://0.0.0.0:8000/". Do the same thing for client/src/context/StockContext.jsx. This will ensure frontend communicate with backend exposing port 8000 on localhost.
+
+- First try to integrate with DEV environment. Then, change db to postgres.
 
 - Define db as postgres on your Django app. Sample setting may be;
 ```py
@@ -397,6 +399,8 @@ POSTGRES_PORT=5432
 ```
 
 - Be sure you defined a STATIC_ROOT variable on the settings.py of the Django project.
+
+- Make sure your Djanog endpoints comply with React.
 
 ### docker-compose file
 
@@ -446,6 +450,8 @@ services:
 
     #   - static_volume:/code/api/static/
 
+  # For the first try, comment out db service and try with dev environment
+  # db.sqlit3. Then open db service and try with postgres.
   db:
     env_file:
       - ./api/.env

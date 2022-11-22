@@ -24,8 +24,8 @@ services:
                     python manage.py migrate --no-input &&
                     python manage.py collectstatic --no-input &&
                     gunicorn main.wsgi:application --bind 0.0.0.0:8000'
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     env_file:
       - ./api/.env
     # image: django_app
@@ -42,17 +42,17 @@ services:
 
     #   - static_volume:/code/api/static/
 
-  db:
-    env_file:
-      - ./api/.env
-    image: postgres
-    ports:
-      - 5432:5432
-    restart: "on-failure"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  # db:
+  #   env_file:
+  #     - ./api/.env
+  #   image: postgres
+  #   ports:
+  #     - 5432:5432
+  #   restart: "on-failure"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
 
 volumes:
   node-modules:
-  postgres_data:
+  # postgres_data:
 #   static_volume:
