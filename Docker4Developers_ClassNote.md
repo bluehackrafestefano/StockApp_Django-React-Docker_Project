@@ -402,6 +402,8 @@ POSTGRES_PORT=5432
 
 - Make sure your Djanog endpoints comply with React.
 
+- Be sure you switch to production environment and added localhost to ALLOWED_HOSTS variable on Djanog settings.
+
 ### docker-compose file
 
 - Create a `docker-compose.yml` file under main directory at the same level with api/ and client/;
@@ -455,7 +457,7 @@ services:
   db:
     env_file:
       - ./api/.env
-    image: postgres:14-bullseye
+    image: postgres:alpine3.16
     ports:
       - 5432:5432
     # restart: "on-failure"

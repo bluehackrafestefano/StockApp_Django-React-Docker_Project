@@ -1,6 +1,8 @@
 from .base import INSTALLED_APPS, MIDDLEWARE, BASE_DIR
 
 
+ALLOWED_HOSTS = []
+
 DEBUG = True
 
 THIRD_PARTY_APPS = [

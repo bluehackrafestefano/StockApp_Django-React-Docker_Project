@@ -1,5 +1,6 @@
 from decouple import config
 
+ALLOWED_HOSTS = ['localhost']
 
 DEBUG = False
 
