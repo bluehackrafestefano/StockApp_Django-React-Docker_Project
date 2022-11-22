@@ -502,6 +502,55 @@ docker-compose down -v
 docker system prune -a
 ```
 
+## (Bonus) Nginx
+
+- To serve Django static files, we need to use Nginx server. 
+
+- Create `nginx` folder next to api/ and client/.
+
+- Create nginx/Dockerfile;
+```Dockerfile
+FROM nginx
+
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d
+```
+
+- Create nginx/nginx.conf;
+```
+upstream django_app { # name of our web image
+    server web:8000; # default django port
+}
+
+server {
+
+    listen 80; # default external port. Anything coming from port 80 will go through NGINX
+
+    location / {
+        proxy_pass http://django_app;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+    location /static/ {
+        alias /code/static/; # where our static files are hosted
+    }
+}
+```
+
+- Add a new service to docker compose file;
+```
+nginx:
+    build: ./nginx
+    depends_on:
+      - web
+    ports:
+      - 80:80
+    restart: "on-failure"
+    volumes:
+      - static_volume:/code/static
+```
+
 ## Docker Best practices
 
 - Use explicit and deterministic Docker base image tags for containerized Python applications.

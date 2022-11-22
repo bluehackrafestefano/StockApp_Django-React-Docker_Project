@@ -39,8 +39,7 @@ services:
       # to the code within Docker it will automatically be synced with 
       # the local filesystem.
       - ./api:/code/api/
-
-    #   - static_volume:/code/api/static/
+      - static_volume:/code/static/
 
   db:
     env_file:
@@ -52,7 +51,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  nginx:
+      build: ./nginx
+      depends_on:
+        - api
+      ports:
+        - 80:80
+      restart: "on-failure"
+      volumes:
+        - static_volume:/code/static
+
 volumes:
   node-modules:
   postgres_data:
-#   static_volume:
+  static_volume:
