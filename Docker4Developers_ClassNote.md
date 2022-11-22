@@ -325,6 +325,7 @@ COPY package.json /code/package.json
 RUN npm install
 
 COPY . /code
+
 CMD [ "npm", "start" ]
 ```
 
@@ -400,9 +401,11 @@ POSTGRES_PORT=5432
 
 - Be sure you defined a STATIC_ROOT variable on the settings.py of the Django project.
 
-- Make sure your Djanog endpoints comply with React.
+- Make sure your Django endpoints comply with React.
 
 - Be sure you switch to production environment and added localhost to ALLOWED_HOSTS variable on Djanog settings.
+
+- debug false
 
 ### docker-compose file
 
@@ -425,7 +428,6 @@ services:
       - 3000:3000
     # restart: "on-failure"
     volumes:
-      - ./client:/code/client
       - node-modules:/code/client/node_modules
 
   api:
@@ -448,7 +450,7 @@ services:
       # with our local computer's filesystem. This if we make a change 
       # to the code within Docker it will automatically be synced with 
       # the local filesystem.
-      - ./api:/code/api/
+      - logs:/code/logs/
 
     #   - static_volume:/code/api/static/
 

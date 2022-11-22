@@ -32,4 +32,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 # to the continer and keep it smaller in size and less vulnerable
 COPY . /code
 
-# CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
