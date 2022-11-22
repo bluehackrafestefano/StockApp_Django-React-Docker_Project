@@ -25,8 +25,9 @@
 ## Summary
 - What is Docker?
   - Docker Desktop
-  - 
+  - Basic Docker Commands
 - Docker Hub
+- Folder SetUp
 - Dockerize Django
   - .dockerignore
   - Build
@@ -34,10 +35,11 @@
   - Run
 - Dockerize React
 - Docker Compose
-  - Pereperation
+  - Preperation
   - docker-compose file
   - Build
   - Cleanup
+- (Optional) Nginx
 - Docker Best practices
 
 <br>
@@ -86,24 +88,28 @@ Key features include:
 - Publisher Images: Pull and use container images provided by external vendors. Certified images also include support and guarantee compatibility with Docker Enterprise.
 - Webhooks: Trigger actions after a successful push to a repository to integrate Docker Hub with other services.
 
-## SetUp
+## Folder SetUp
 
-- Create a working directory named `stock-app`. Create two folders; api/ and client/. Put your Django project inside api/ folder, and React project inside client/ folder.
+- Create a working directory named `project`. Create two folders; api/ and client/. Put your Django project inside api/ folder, and React project inside client/ folder.
 
 - The project folder structure will be like;
 ```
-stock-app
+project
 ├─ api
 │  ├─ account
 │  ├─ main
 │  ├─ manage.py
 │  ├─ requirements.txt
 │  └─ stock
-└─ client
-   ├─ package.json
-   ├─ public
-   ├─ src
-   └─ yarn.lock
+├─ client
+│   ├─ package.json
+│   ├─ public
+│   ├─ src
+│   └─ yarn.lock
+├─ docker-compose.yml
+└─ nginx
+   ├─ Dockerfile
+   └─ nginx.conf
 ```
 
 ## Dockerize Django
@@ -362,7 +368,7 @@ Compose works in all environments: production, staging, development, testing, as
 
 - Compose specification concepts with a concrete example application is in the [documentation](https://docs.docker.com/compose/compose-file/#illustrative-example).
 
-### Pereperation
+### Preperation
 
 - Remove CMD line from Django Dockerfile. We will handle that command with docker-compose.yml using gunicorn. Gunicorn ‘Green Unicorn’ is a Python WSGI HTTP Server for UNIX. Add [gunicorn](https://pypi.org/project/gunicorn/) (gunicorn==20.1.0) to requirements.txt under api/.
 
@@ -405,7 +411,7 @@ POSTGRES_PORT=5432
 
 - Be sure you switch to production environment and added localhost to ALLOWED_HOSTS variable on Djanog settings.
 
-- debug false
+- Set DEBUG to False while you are testing production environment.
 
 ### docker-compose file
 
@@ -502,7 +508,7 @@ docker-compose down -v
 docker system prune -a
 ```
 
-## (Bonus) Nginx
+## (Optional) Nginx
 
 - To serve Django static files, we need to use Nginx server. 
 
@@ -510,7 +516,7 @@ docker system prune -a
 
 - Create nginx/Dockerfile;
 ```Dockerfile
-FROM nginx
+FROM nginx:1-alpine
 
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d
@@ -519,7 +525,7 @@ COPY nginx.conf /etc/nginx/conf.d
 - Create nginx/nginx.conf;
 ```
 upstream django_app { # name of our web image
-    server web:8000; # default django port
+    server api:8000; # default django port
 }
 
 server {
@@ -535,6 +541,7 @@ server {
     location /static/ {
         alias /code/static/; # where our static files are hosted
     }
+
 }
 ```
 
