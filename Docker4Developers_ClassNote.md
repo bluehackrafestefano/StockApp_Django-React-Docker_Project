@@ -45,8 +45,16 @@
 <br>
 
 ## What is Docker?
-Docker makes development efficient and predictable. It is working in my computer, but what about after deployment to the cloud?
-Docker takes away repetitive configuration tasks and is used throughout the development lifecycle for fast, easy and portable application development.
+
+The main question of developers: 'The project is working in my computer, but what about my colleague or after deployment to the cloud?'
+
+Docker makes development efficient and predictable. Docker takes away repetitive configuration tasks and is used throughout the development lifecycle for fast, easy and portable application development.
+
+- Docker makes containers.
+- Containers are like an virtual machines or instances. But, containers can share system resources unlike VM's.
+- One process per a Docker container!
+
+![](docker.png)
 
 - **Build**
 
@@ -58,6 +66,8 @@ Leverage Docker Trusted Content, including Docker Official Images and images fro
 Innovate by collaborating with team members and other developers and by easily publishing images to Docker Hub.
 
 - **Run**
+
+![](container.png)
 
 Deliver multiple applications hassle free and have them run the same way on all your environments including design, testing, staging and production – desktop or cloud-native.
 Deploy your applications in separate containers independently and in different languages. Reduce the risk of conflict between languages, libraries or frameworks.
@@ -169,7 +179,7 @@ Dockerfile
 ```dockerfile
 # Select a base image which suits your usecase
 # Consider using smallest image possible. But there
-# are other considerations about selecting base image.
+# are other considerations like security and packages.
 FROM python:3.10.8-slim-bullseye
 
 # PYTHONDONTWRITEBYTECODE=1 env prevents Python from copying pyc files 
@@ -200,13 +210,13 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 # Copy all the working directory to the container. Optionally a
 # `.dockerignore` file can be used not to copy unrelated things
-# to the continer and keep it smaller in size and less vulnerable
+# to the continer and keep it smaller in size and less vulnerable.
 COPY . /code
 
 CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
 ```
 
-- Open Docker Desktop tool before executing any docker operation. This tool is using Docker Deamon and having a nice user interface enables us to do our task easily.
+- Open Docker Desktop tool before executing any docker operation. This tool is using Docker deamon and having a nice user interface enables us to do our task easily.
 
 - Build image using Dockerfile on the current directory;
 ```docker
@@ -257,11 +267,6 @@ docker tag django-backend stefanorafe/django-backend:v0.1
 docker push stefanorafe/django-backend:v0.1
 ```
 
-- ( Optional ) Prune your images and run a new container using your published image! See the beauty and simplicity of the Docker.
-```docker
-docker run -d -p 8000:8000 stefanorafe/django-backend:v0.1
-```
-
 ### Run
 
 - Make a container from the image you just created with the tag `django-backend`;
@@ -270,10 +275,18 @@ docker run -d -p 8000:8000 django-backend
 
 docker run --name django_container -d -p 8000:8000 django-backend
 
-docker run --env-file=.env --name django_container -d -p 8000:8000 django-backend
+docker run --env-file=.env -d -p 8000:8000 django-backend
 
-docker run -v ./api:/code/api/ --env-file=.env --name django_container -d -p 8000:8000 django-backend
+docker run -v $PWD/logs:/code/api/logs -d -p 8000:8000 django-backend
 ```
+
+- The commands above includes `-p` flag which is used for port mapping.
+
+![](portmapping.png)
+
+- Creating a volume in Docker enables us to keep data, such as logs or database entries, even after the container is stopped/deleted. In our example above, we are connecting local logs/ folder with the logs/ folder inside container. So, every new container will get the initial log file from local and continue to add the latest log. This will provide data persistence. Be careful writing the paths to your files.
+
+![](volumes.png)
 
 - Go to the Docker Desktop and open your app on the browser. Also you can simply go to the endpoint you published on your docker run command which is port 8000.
 
@@ -403,6 +416,8 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
+DJANGO_LOG_LEVEL=DEBUG
+ENV_NAME=DEV
 ```
 
 - Be sure you defined a STATIC_ROOT variable on the settings.py of the Django project.
@@ -456,26 +471,35 @@ services:
       # with our local computer's filesystem. This if we make a change 
       # to the code within Docker it will automatically be synced with 
       # the local filesystem.
-      - logs:/code/logs/
+      - $PWD/logs:/code/api/logs
+      # - static_volume:/code/static/
 
-    #   - static_volume:/code/api/static/
-
-  # For the first try, comment out db service and try with dev environment
-  # db.sqlit3. Then open db service and try with postgres.
   db:
     env_file:
       - ./api/.env
-    image: postgres:alpine3.16
+    image: postgres
     ports:
       - 5432:5432
-    # restart: "on-failure"
+    restart: "on-failure"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  # nginx:
+  #     build: ./nginx
+  #     depends_on:
+  #       - api
+  #       - client
+  #     ports:
+  #       - 80:80
+  #       - 81:81
+  #     restart: "on-failure"
+  #     volumes:
+  #       - static_volume:/code/static
 
 volumes:
   node-modules:
   postgres_data:
-#   static_volume:
+  # static_volume:
 ```
 
 - To understand the terminology, look at [documentation](https://docs.docker.com/compose/compose-file/compose-file-v3/).
@@ -510,7 +534,7 @@ docker system prune -a
 
 ## (Optional) Nginx
 
-- To serve Django static files, we need to use Nginx server. 
+- To serve Django static files, and/or serving React app as a proxy server we need to use Nginx server. 
 
 - Create `nginx` folder next to api/ and client/.
 
@@ -528,6 +552,10 @@ upstream django_app { # name of our web image
     server api:8000; # default django port
 }
 
+upstream react_app { # name of our web image
+    server client:3000; # default django port
+}
+
 server {
 
     listen 80; # default external port. Anything coming from port 80 will go through NGINX
@@ -538,11 +566,22 @@ server {
         proxy_set_header Host $host;
         proxy_redirect off;
     }
+
     location /static/ {
         alias /code/static/; # where our static files are hosted
     }
+}
+
+server {
+
+    listen 81;
+
+    location / {
+        proxy_pass http://react_app;
+    }
 
 }
+
 ```
 
 - Add a new service to docker compose file;
@@ -553,6 +592,7 @@ nginx:
       - web
     ports:
       - 80:80
+      - 81:81
     restart: "on-failure"
     volumes:
       - static_volume:/code/static
