@@ -55,8 +55,10 @@ services:
       build: ./nginx
       depends_on:
         - api
+        - client
       ports:
         - 80:80
+        - 81:81
       restart: "on-failure"
       volumes:
         - static_volume:/code/static
