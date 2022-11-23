@@ -46,30 +46,38 @@
 
 ## What is Docker?
 
-The main question of developers: 'The project is working in my computer, but what about my colleague or after deployment to the cloud?'
+A fundamental question for developers: 'The project is working on my computer, but what about my colleague's computer or after deployment to the cloud?'
 
 Docker makes development efficient and predictable. Docker takes away repetitive configuration tasks and is used throughout the development lifecycle for fast, easy and portable application development.
 
 - Docker makes containers.
-- Containers are like an virtual machines or instances. But, containers can share system resources unlike VM's.
-- One process per a Docker container!
+- Containers are like virtual machines or instances. But, containers can share system resources, unlike VMs.
+- One process per Docker container!
 
 ![](docker.png)
 
 - **Build**
 
-Get a head start on your coding by leveraging Docker images to efficiently develop your own unique applications on any OS.  Create your multi-container application using Docker Compose.
+Get a head start on your coding by leveraging Docker images to efficiently develop your own unique applications on any OS.
+
+The docker build command builds Docker images from a `Dockerfile` and a `context`. A build's context is the set of files located in the specified PATH or URL . The build process can refer to any of the files in the context. For example, your build can use a COPY instruction to reference a file in the context.
+
+Create your multi-container application using Docker Compose.
 
 - **Share**
 
-Leverage Docker Trusted Content, including Docker Official Images and images from Docker Verified Publishers from the Docker Hub repository.
-Innovate by collaborating with team members and other developers and by easily publishing images to Docker Hub.
+You can get Docker Trusted Content, including Docker Official Images and images from Docker Verified Publishers from the Docker Hub repository.
+
+Also, the easiest way to share a Docker image is to push it up to a Docker registry. This functionality is fully integrated into the Docker CLI. You don't need to make any manual file transfers when using this method. The default registry is Docker Hub.
+
+Collaborating with team members and other developers are easy by publishing images to Docker Hub.
 
 - **Run**
 
 ![](container.png)
 
 Deliver multiple applications hassle free and have them run the same way on all your environments including design, testing, staging and production – desktop or cloud-native.
+
 Deploy your applications in separate containers independently and in different languages. Reduce the risk of conflict between languages, libraries or frameworks.
 
 ### Docker Desktop
@@ -82,7 +90,7 @@ Deploy your applications in separate containers independently and in different l
 
 We do not have to memorize Docker commands. Here is a simple [cheat sheet](https://docs.docker.com/get-started/docker_cheatsheet.pdf).
 
-For detailed command options visit the [Docker CLI guide](https://docs.docker.com/engine/reference/commandline/cli/). 
+For detailed command options, visit the [Docker CLI guide](https://docs.docker.com/engine/reference/commandline/cli/). 
 
 ## Docker Hub
 
@@ -111,15 +119,11 @@ project
 │  ├─ manage.py
 │  ├─ requirements.txt
 │  └─ stock
-├─ client
-│   ├─ package.json
-│   ├─ public
-│   ├─ src
-│   └─ yarn.lock
-├─ docker-compose.yml
-└─ nginx
-   ├─ Dockerfile
-   └─ nginx.conf
+└─ client
+    ├─ package.json
+    ├─ public
+    ├─ src
+    └─ yarn.lock
 ```
 
 ## Dockerize Django

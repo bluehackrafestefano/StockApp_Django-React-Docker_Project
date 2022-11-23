@@ -6,6 +6,27 @@
 
 - Docker or Docker Desktop installed to your computer
 
+## Project Structure
+
+```
+project
+├─ api
+│  ├─ account
+│  ├─ main
+│  ├─ manage.py
+│  ├─ requirements.txt
+│  └─ stock
+├─ client
+│   ├─ package.json
+│   ├─ public
+│   ├─ src
+│   └─ yarn.lock
+├─ docker-compose.yml
+└─ nginx
+   ├─ Dockerfile
+   └─ nginx.conf
+```
+
 ## Steps to spin up
 
 - Clone this repo;
