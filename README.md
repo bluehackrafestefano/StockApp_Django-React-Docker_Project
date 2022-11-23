@@ -1,5 +1,9 @@
 # Stock App Django - React - Docker Project
 
+## Needs
+
+- Docker or Docker Desktop installed to your computer
+
 ## Steps to spin up
 
 - Clone this repo;
