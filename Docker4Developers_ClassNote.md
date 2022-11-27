@@ -132,8 +132,6 @@ project
 
 - There is no need to create a virtual environment. The Docker container is a self contained, one purpose tool which just have enough resources to run our code.
 
-- See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/).
-
 - Docker operations are generally three stages. 
   - Build image from a Dockerfile,
   - Push image to registry for future uses,
@@ -178,6 +176,10 @@ Dockerfile
 ```
 
 ### Build
+
+Docker can build images automatically by reading the instructions from a Dockerfile. A Dockerfile is a text document that contains all the commands a user could call on the command line to assemble an image.
+
+- See the [Dockerfile reference](https://docs.docker.com/engine/reference/builder/).
 
 - Create a file named `Dockerfile` under api/ folder;
 ```dockerfile
@@ -252,14 +254,19 @@ CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
 
 - Open Docker Desktop tool before executing any docker operation. This tool is using Docker deamon and having a nice user interface enables us to do our task easily.
 
+- See [Docker build reference](https://docs.docker.com/engine/reference/commandline/build/).
+
 - Build image using Dockerfile on the current directory;
 ```docker
+# --tag or -t	option:	Name and optionally a tag in the 'name:tag' format.
+# This example specifies that the PATH is ., and so all the files in the local directory. That means Docker daemon will search Dockerfile in the local directory. 
 docker build -t django-backend .
 ```
 
 - See your image using terminal command;
 ```
 docker images
+docker image ls
 
 REPOSITORY       TAG       IMAGE ID       CREATED              SIZE
 django-backend   latest    7430248bff0b   About a minute ago   190MB
@@ -297,7 +304,7 @@ docker tag django-backend stefanorafe/django-backend:v0.1
 ```
 
 - Ready to push our image;
-```docker
+```
 docker push stefanorafe/django-backend:v0.1
 ```
 
@@ -305,12 +312,17 @@ docker push stefanorafe/django-backend:v0.1
 
 - Make a container from the image you just created with the tag `django-backend`;
 ```docker
+# To start a container in detached mode, you use -d option. By design, containers started in detached mode exit when the root process used to run the container exits, unless you also specify the --rm option. If you use -d with --rm, the container is removed when it exits or when the daemon exits, whichever happens first.
+
+# Publish a container's port or a range of ports to the host format: hostPort:containerPort
 docker run -d -p 8000:8000 django-backend
 
+# Assign a container name with the --name option.
 docker run --name django_container -d -p 8000:8000 django-backend
 
 docker run --env-file=.env -d -p 8000:8000 django-backend
 
+# -v, --volume=[host-src:]container-dest[:<options>]: Bind mount a volume. The comma-delimited `options` are [rw|ro], [z|Z], [[r]shared|[r]slave|[r]private], and [nocopy]. The 'host-src' is an absolute path or a name value.
 docker run -v $PWD/logs:/code/api/logs -d -p 8000:8000 django-backend
 ```
 
@@ -327,7 +339,8 @@ docker run -v $PWD/logs:/code/api/logs -d -p 8000:8000 django-backend
 - See your application up and running. But if you test the app you will see you did not apply migrations and create db tables. So open a terminal and migrate db tables.
 
 - First see the container list;
-```
+```docker
+# Docker has used the naming convention of ps from Linux; ps means 'process status' in Linux, and containers are actually running as a process on the Linux server; that's why 'docker ps' is used to list the containers.
 docker ps
 docker ps -a
 
@@ -336,7 +349,9 @@ CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS 
 ```
 
 - Note the container id. To open a terminal inside container;
-```
+```docker
+# For interactive processes (like a shell), you must use -i -t together.
+
 docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
 docker exec -it <container_id> sh
 docker exec -it 37b5afe65eaa sh
@@ -344,7 +359,7 @@ docker exec -it 37b5afe65eaa sh
 
 - Then you can execute commands on the terminal opened.
 
-- To delete a container;
+- To delete or remove a container;
 ```
 docker rm <container name/id>
 ```
@@ -368,10 +383,10 @@ venv/
 - Create Dockerfile for our front-end under client/ folder;
 ```dockerfile
 FROM node:19-slim
-WORKDIR /code
-COPY package.json /code/package.json
 
-# COPY yarn.lock /code/yarn.lock ?????
+WORKDIR /code
+
+COPY package.json /code/package.json
 
 # --loglevel verbose flag should output the logs in real time 
 # and also save your log into npm-debug.log file.
@@ -397,9 +412,9 @@ docker run --name react -d -p 3000:3000 react-frontend
 
 ## Docker Compose
 
-- Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
+Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
 
-Compose works in all environments: production, staging, development, testing, as well as CI workflows. It also has commands for managing the whole lifecycle of your application:
+Compose has commands for managing the whole lifecycle of your application:
 
   - Start, stop, and rebuild services,
   - View the status of running services,
