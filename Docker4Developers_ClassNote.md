@@ -181,21 +181,40 @@ Dockerfile
 
 - Create a file named `Dockerfile` under api/ folder;
 ```dockerfile
+# INSTRUCTION arguments
+
+# The FROM instruction initializes a new build stage and sets 
+# the Base Image for subsequent instructions. As such, a valid 
+# Dockerfile must start with a FROM instruction.
+
 # Select a base image which suits your usecase
 # Consider using smallest image possible. But there
 # are other considerations like security and packages.
 FROM python:3.10.8-slim-bullseye
 
+
+# The ENV instruction sets the environment variable <key> to the value <value>
+
 # PYTHONDONTWRITEBYTECODE=1 env prevents Python from copying pyc files 
 # to the container. 
 ENV PYTHONDONTWRITEBYTECODE=1
+
 
 # PYTHONUNBUFFERED=1 ensures that Python output is logged to 
 # the terminal, making it possible to monitor Django logs in 
 # realtime.
 ENV PYTHONUNBUFFERED=1
 
+
+# The WORKDIR instruction sets the working directory for any RUN, CMD, 
+# ENTRYPOINT, COPY and ADD instructions that follow it in the Dockerfile. 
+# If the WORKDIR doesn’t exist, it will be created even if it’s not used 
+# in any subsequent Dockerfile instruction.
 WORKDIR /code
+
+
+# The COPY instruction copies new files or directories from <src> and adds 
+# them to the filesystem of the container at the path <dest>.
 
 # Docker checks if layers can be reused, if it finds that there are 
 # no changes to the requirements.txt file, it will jump straight 
@@ -205,6 +224,11 @@ WORKDIR /code
 # in our code.
 COPY requirements.txt /code/requirements.txt
 
+
+# The RUN instruction will execute any commands in a new layer 
+# on top of the current image and commit the results. The resulting 
+# committed image will be used for the next step in the Dockerfile.
+
 # Adding --no-cache-dir to the pip install command saves an 
 # additional disk space, as this prevents pip from caching 
 # downloads and caching wheels locally. Since you won't need 
@@ -212,10 +236,16 @@ COPY requirements.txt /code/requirements.txt
 # been created, this can be added to the pip install command.
 RUN pip install -r requirements.txt --no-cache-dir
 
+
 # Copy all the working directory to the container. Optionally a
 # `.dockerignore` file can be used not to copy unrelated things
 # to the continer and keep it smaller in size and less vulnerable.
 COPY . /code
+
+
+# The main purpose of a CMD is to provide defaults for an executing 
+# container. There can only be one CMD instruction in a Dockerfile. 
+# If you list more than one CMD then only the last CMD will take effect.
 
 CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
 ```
