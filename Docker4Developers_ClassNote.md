@@ -41,6 +41,7 @@
   - Cleanup
 - (Optional) Nginx
 - Docker Best practices
+- Next Steps
 
 <br>
 
@@ -477,6 +478,8 @@ ENV_NAME=DEV
 
 - Set DEBUG to False while you are testing production environment.
 
+- Django’s startproject management command sets up a minimal default WSGI configuration for you, which you can tweak as needed for your project, and direct any WSGI-compliant application server to use. Gunicorn 'Green Unicorn' is a Python WSGI HTTP Server for UNIX. The Gunicorn server is broadly compatible with various web frameworks, simply implemented, light on server resources, and fairly speedy.
+
 ### docker-compose file
 
 - Create a `docker-compose.yml` file under main directory at the same level with api/ and client/;
@@ -485,10 +488,12 @@ ENV_NAME=DEV
 # which is currently 3.9
 version: '3.9'
 
+# Computing components of an application are defined as Services. 
 # Specify which services (or containers) we want to have running 
 # within our Docker host.
 services:
 
+  # frontend
   client:
     build: ./client
     # container_name: client
@@ -506,6 +511,12 @@ services:
                     python manage.py migrate --no-input &&
                     python manage.py collectstatic --no-input &&
                     gunicorn main.wsgi:application --bind 0.0.0.0:8000'
+# Gunicorn takes care of everything which happens in-between the web server 
+# and your web application. This way, when coding up your a Django application 
+# you don’t need to find your own solutions for communicating with multiple 
+# web servers, reacting to lots of web requests at once and distributing 
+# the load, and keepiung multiple processes of the web application running
+
     depends_on:
       - db
     env_file:
@@ -545,6 +556,8 @@ services:
   #     volumes:
   #       - static_volume:/code/static
 
+
+# Services store and share persistent data into Volumes. 
 volumes:
   node-modules:
   postgres_data:
@@ -583,7 +596,7 @@ docker system prune -a
 
 ## (Optional) Nginx
 
-- To serve Django static files, and/or serving React app as a proxy server we need to use Nginx server. 
+- To serve Django static files, and/or serving React app as a proxy server we need to use Nginx server.  It is best to use Gunicorn behind an HTTP proxy server. We strongly advise you to use nginx. 
 
 - Create `nginx` folder next to api/ and client/.
 
@@ -596,7 +609,7 @@ COPY nginx.conf /etc/nginx/conf.d
 ```
 
 - Create nginx/nginx.conf;
-```
+```py
 upstream django_app { # name of our web image
     server api:8000; # default django port
 }
@@ -611,7 +624,10 @@ server {
 
     location / {
         proxy_pass http://django_app;
+
+        # To configure Nginx to pass an appropriate header, add a proxy_set_header directive to your location block:
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
         proxy_set_header Host $host;
         proxy_redirect off;
     }
@@ -655,3 +671,11 @@ nginx:
 - Run containers with least possible privilege (and never as root).
 - Handle unhealthy states of your application. 
 - Find and fix security vulnerabilities in your Python Docker application image.
+- Use linting tools to check your code before consuming unnecessary resources
+
+
+## Next Steps
+
+- [Deployment Checklist](https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/#run-manage-py-check-deploy) on Django documentation
+
+- Using Kubernetes to orchestrate your cluster
