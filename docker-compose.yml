@@ -11,6 +11,7 @@ services:
     # container_name: client
     depends_on:
       - api
+    image: react_image
     ports:
       - 3000:3000
     restart: "on-failure"
@@ -28,7 +29,7 @@ services:
       - db
     env_file:
       - ./api/.env
-    # image: django_app
+    image: django_image
     ports:
       - 8000:8000
     restart: "on-failure"
@@ -56,6 +57,7 @@ services:
       depends_on:
         - api
         - client
+      image: nginx_image
       ports:
         - 80:80
         - 81:81
