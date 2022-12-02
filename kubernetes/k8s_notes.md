@@ -1,19 +1,23 @@
 minikube start
+
 kubectl cluster-info
 
 kubectl get nodes
 kubectl get node
 kubectl get no
-
-kubectl get namespaces
 kubectl get pods -A
 kubectl get pods -n kube-system
 kubectl get pods/nginx-pod -o yaml
 kubectl get services -A
-
 kubectl get namespaces
 kubectl get ns
+
+whenever any update/change/delete happen to the pod, you will see the update:
+kubectl get pod <podname> -w
+watch -n 1 kubectl get pod <podname>
+
 kubectl apply -f namespaces.yml
+
 kubectl delete -f namespaces.yml
 kubectl delete -f deployment.yml
 
@@ -21,7 +25,18 @@ docker container ls
 
 kubectl api-resources
 kubectl explain nodes
-kubectl e
+
+kubectl exec <podname> -- sh
+kubectl exec <podname> -- date
+kubectl exec nginx-deployment-5d98ddb845-4pcgb -- curl localhost
+kubectl exec -it nginx-deployment-5d98ddb845-4pcgb -- sh
+
+kubectl scale deploy <deploymentname> --replicas=5
+
+kubectl rollout undo deploy <deploymentname> --to-revision=<revnumber>
+kubectl rollout history deploy <deploymentname>
+
+kubectl edit deploy/<deploymentname>
 
 
 # Deployment

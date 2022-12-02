@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mario-pod
+  labels:
+    app: mario-pod
+spec:
+  containers:
+  - name: mario
+    image: pengbai/docker-supermario
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 8080
