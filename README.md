@@ -1,5 +1,3 @@
-![](ch13.png)
-
 # Stock App Django - React - Docker Project
 
 ## Needs
