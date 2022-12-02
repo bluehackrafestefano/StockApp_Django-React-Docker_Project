@@ -1,0 +1,36 @@
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-deployment
+  namespace: development
+  labels:
+    app: stock
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: stock
+  template:
+    metadata:
+      labels:
+        app: stock
+    spec:
+      containers:
+      - name: stock-container
+        image: react_image:latest
+        ports:
+        - containerPort: 3000
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
